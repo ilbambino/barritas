@@ -4,12 +4,14 @@ const random = require("canvas-sketch-util/random");
 const palettes = require("nice-color-palettes");
 
 const settings = {
-  dimensions: [1000, 1485]
+  dimensions: [500, 735]
 };
 
-const margin = 30;
+const margin = 10;
 const drawGrid = false;
-const useColors = false;
+const useColors = true;
+const randomBackground = true;
+const multiDoodle = true;
 
 const seed = random.getRandomSeed();
 // const seed = 315986;
@@ -113,42 +115,57 @@ const drawRandomLines = (
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "white";
+    if (randomBackground) {
+      context.fillStyle = random.pick(palette);
+    } else {
+      context.fillStyle = "white";
+    }
     context.fillRect(0, 0, width, height);
 
-    context.lineWidth = 5;
+    context.lineWidth = width / 250;
 
-    const verticalCells = 3;
-    const cellWidth = (width - margin * 3) / 2;
-    const cellHeigh = (height - margin * (verticalCells + 1)) / verticalCells;
-    if (cellHeigh != cellWidth) {
-      console.error(
-        "wrong height, it should be:",
-        cellWidth * verticalCells + margin * (verticalCells + 1)
-      );
-    }
+    if (multiDoodle) {
+      const verticalCells = 3;
+      const cellWidth = (width - margin * 3) / 2;
+      const cellHeigh = (height - margin * (verticalCells + 1)) / verticalCells;
+      if (cellHeigh != cellWidth) {
+        console.error(
+          "wrong height, it should be:",
+          cellWidth * verticalCells + margin * (verticalCells + 1)
+        );
+      }
 
-    const gridSizes = [3, 4, 8, 16, 32, 48];
-    const numberShapes = [2, 4, 10, 16, 50, 120];
-    const shapeLengths = [2, 3, 4, 6, 9, 15];
-    // const shapeLengths = [0, 0, 0, 0, 0, 0];
-    for (let i = 0; i < verticalCells * 2; i++) {
-      context.save();
-      x = i % 2;
-      y = Math.floor(i / 2);
-      context.translate(
-        x * cellWidth + margin + margin * x,
-        y * cellHeigh + margin + margin * y
-      );
+      const gridSizes = [3, 4, 8, 16, 32, 48];
+      const numberShapes = [2, 4, 10, 16, 50, 120];
+      const shapeLengths = [2, 3, 4, 6, 9, 15];
+      // const shapeLengths = [0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < verticalCells * 2; i++) {
+        context.save();
+        x = i % 2;
+        y = Math.floor(i / 2);
+        context.translate(
+          x * cellWidth + margin + margin * x,
+          y * cellHeigh + margin + margin * y
+        );
+        drawRandomLines(
+          context,
+          cellWidth,
+          cellHeigh,
+          numberShapes[i], //numberShapes
+          shapeLengths[i], //shapeLength
+          gridSizes[i] //Gridssize
+        );
+        context.restore();
+      }
+    } else {
       drawRandomLines(
         context,
-        cellWidth,
-        cellHeigh,
-        numberShapes[i], //numberShapes
-        shapeLengths[i], //shapeLength
-        gridSizes[i] //Gridssize
+        width,
+        height,
+        36, //numberShapes
+        3, //shapeLength
+        10 //Gridsize
       );
-      context.restore();
     }
   };
 };
